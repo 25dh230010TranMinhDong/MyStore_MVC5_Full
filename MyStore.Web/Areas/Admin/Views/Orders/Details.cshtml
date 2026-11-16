@@ -1,0 +1,38 @@
+﻿@model MyStore.Web.Models.StoreOrder
+@{ViewBag.Title="Chi tiết đơn hàng";Layout="~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";}
+<div class="admin-heading"><h1>Đơn hàng #@Model.OrderID</h1></div><div class="admin-box">
+<div class="details-grid"><p><b>Khách hàng:</b> @Model.Customer.CustomerName</p><p><b>Ngày đặt:</b> @Model.OrderDate.ToString("dd/MM/yyyy")</p>
+<p><b>Trạng thái:</b> @Model.OrderStatus</p><p><b>Thanh toán:</b> @Model.PaymentMethod - @Model.PaymentStatus</p>
+<p><b>Hình thức giao:</b> @Model.DeliveryMethod</p><p><b>Địa chỉ giao:</b> @Model.ShippingAddress</p></div>
+<table class="admin-table"><thead><tr><th>Sản phẩm</th><th>Số lượng</th><th>Đơn giá</th><th>Thành tiền</th></tr></thead><tbody>
+@foreach(var d in Model.OrderDetails){<tr><td>@d.Product.ProductName</td><td>@d.Quantity</td><td>@d.UnitPrice.ToString("N0")₫</td><td>@((d.Quantity*d.UnitPrice).ToString("N0"))₫</td></tr>}
+</tbody></table><h2>Tổng: @Model.TotalAmount.ToString("N0")₫</h2>
+@if (Model.OrderStatus != "Cancelled" && Model.OrderStatus != "Delivered")
+{
+    <div class="admin-order-actions">
+        @using (Html.BeginForm("SetStatus", "Orders", FormMethod.Post, new { @class = "admin-search" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.Hidden("id", Model.OrderID)
+            <select name="status">
+                <option value="Pending">Chờ xử lý</option>
+                <option value="Processing">Đang xử lý</option>
+                <option value="Shipping">Đang giao hàng</option>
+                <option value="Delivered">Đã giao</option>
+            </select>
+            <button class="button primary">Cập nhật trạng thái</button>
+        }
+    </div>
+}
+@if (Model.OrderStatus == "Pending")
+{
+    <div class="admin-order-actions">
+        @using (Html.BeginForm("Cancel", "Orders", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            @Html.Hidden("id", Model.OrderID)
+            <button class="button danger-bg" onclick="return confirm('Hủy đơn và hoàn kho?')">Hủy đơn hàng</button>
+        }
+    </div>
+}
+<a class="button" href="@Url.Action("Index")">Quay lại</a></div>

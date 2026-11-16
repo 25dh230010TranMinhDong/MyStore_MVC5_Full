@@ -1,0 +1,9 @@
+﻿@model IEnumerable<MyStore.Web.Models.StoreOrder>
+@{ViewBag.Title="Đơn hàng";Layout="~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";}
+<div class="admin-heading"><div><p class="overline">ORDERS</p><h1>Quản lý đơn hàng</h1></div></div><div class="admin-box">
+@using(Html.BeginForm("Index","Orders",FormMethod.Get,new{@class="admin-search"})){<input name="keyword" value="@ViewBag.Keyword" placeholder="Mã đơn hoặc tên khách hàng"/>
+<select name="status"><option value="">Tất cả trạng thái</option>
+@foreach(var s in new[]{"Pending","Processing","Shipping","Delivered","Cancelled"}){<option value="@s" @(ViewBag.Status==s?"selected":"")>@s</option>}</select><button class="button">Lọc</button>}
+<table class="admin-table"><thead><tr><th>Mã đơn</th><th>Khách hàng</th><th>Ngày</th><th>Giá trị</th><th>Thanh toán</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>
+@foreach(var o in Model){<tr><td>#@o.OrderID</td><td>@o.Customer.CustomerName</td><td>@o.OrderDate.ToString("dd/MM/yyyy")</td><td>@o.TotalAmount.ToString("N0")₫</td><td>@o.PaymentMethod</td><td><span class="pill">@o.OrderStatus</span></td><td><a href="@Url.Action("Details",new{id=o.OrderID})">Chi tiết</a></td></tr>}
+</tbody></table>@Html.Partial("_SimplePager",new Tuple<int,int,string,string>((int)ViewBag.Page,(int)ViewBag.Total,(string)ViewBag.Keyword,null))</div>

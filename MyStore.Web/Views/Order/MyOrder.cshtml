@@ -1,0 +1,22 @@
+﻿@model MyStore.Web.Models.OrderHistoryVM
+@{ViewBag.Title="Lịch sử đơn hàng";Layout="~/Views/Shared/_CustomerLayout.cshtml";}
+<div class="page-heading"><span class="eyebrow">MY ORDERS</span><h1>Đơn hàng của tôi</h1></div>
+<div class="tabs">@foreach(var s in new[]{new{Value="",Label="Tất cả"},new{Value="Pending",Label="Chờ xử lý"},new{Value="Processing",Label="Đang xử lý"},new{Value="Shipping",Label="Đang giao"},new{Value="Delivered",Label="Đã giao"},new{Value="Cancelled",Label="Đã hủy"}}){<a class="@(Model.Status==s.Value?"active":"")" href="@Url.Action("MyOrder",new{status=s.Value,keyword=Model.Keyword})">@s.Label</a>}</div>
+@using(Html.BeginForm("MyOrder","Order",FormMethod.Get,new{@class="search-inline"})){@Html.HiddenFor(x=>x.Status)<input class="form-control" name="keyword" value="@Model.Keyword" placeholder="Tìm mã đơn hoặc tên sản phẩm"/><button class="btn btn-dark">Tìm đơn hàng</button>}
+@if(!Model.Orders.Any()){<div class="empty-state">Chưa có đơn hàng phù hợp.</div>}
+@foreach(var o in Model.Orders){<div class="card order-history"><div class="history-head"><strong>Đơn #@o.OrderID</strong><span class="status">@o.OrderStatus</span></div>
+<p class="small muted">@o.OrderDate.ToString("dd/MM/yyyy")</p>
+@foreach(var d in o.OrderDetails){<div class="order-mini"><span>@d.Product.ProductName × @d.Quantity</span><span>@((d.Quantity*d.UnitPrice).ToString("N0"))₫</span></div>}
+<div class="history-foot"><strong class="price">@o.TotalAmount.ToString("N0")₫</strong><div><a class="btn btn-outline btn-small" href="@Url.Action("OrderSuccess",new{id=o.OrderID})">Xem chi tiết</a>
+@if (o.OrderStatus == "Pending")
+{
+    <span class="cancel-order-wrap">
+        @using (Html.BeginForm("Cancel", "Order", FormMethod.Post, new { @class = "inline-form" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.Hidden("id", o.OrderID)
+            <button class="btn btn-danger btn-small" onclick="return confirm('Hủy đơn hàng này?')">Hủy đơn</button>
+        }
+    </span>
+}
+</div></div></div>}

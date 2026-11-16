@@ -1,0 +1,16 @@
+﻿@model MyStore.Web.Models.CheckoutVM
+@{ViewBag.Title="Đặt hàng";Layout="~/Views/Shared/_CustomerLayout.cshtml";}
+<div class="page-heading"><span class="eyebrow">CHECKOUT</span><h1>Xác nhận đặt hàng</h1></div>
+@using(Html.BeginForm("Checkout","Order",FormMethod.Post,new{@class="checkout-layout"})){
+@Html.AntiForgeryToken()<div class="card"><h2>Thông tin giao hàng</h2>@Html.ValidationSummary(false,"",new{@class="text-error"})
+<label>Địa chỉ nhận hàng</label>@Html.TextBoxFor(x=>x.ShippingAddress,new{@class="form-control",@readonly="readonly",id="shippingAddress"})
+<button type="button" class="btn btn-outline btn-small" onclick="toggleAddressEdit()">Chỉnh sửa địa chỉ</button>
+@Html.ValidationMessageFor(x=>x.ShippingAddress)
+<h2>Phương thức giao hàng</h2><label class="radio-line">@Html.RadioButtonFor(x=>x.DeliveryMethod,"Standard") Tiêu chuẩn</label><label class="radio-line">@Html.RadioButtonFor(x=>x.DeliveryMethod,"Express") Nhanh</label>
+<h2>Phương thức thanh toán</h2><label class="radio-line">@Html.RadioButtonFor(x=>x.PaymentMethod,"COD") Thanh toán khi nhận hàng (COD)</label>
+<label class="radio-line">@Html.RadioButtonFor(x=>x.PaymentMethod,"PayPal") PayPal (yêu cầu cấu hình Sandbox)</label>
+</div><aside class="card cart-summary"><h2>Đơn hàng (@Model.Items.Count)</h2>
+@foreach(var i in Model.Items){<div class="order-mini"><span>@i.ProductName × @i.Quantity</span><strong>@i.TotalPrice.ToString("N0")₫</strong></div>}
+<div class="summary-total"><span>Tổng tiền</span><strong>@Model.TotalAmount.ToString("N0")₫</strong></div>
+<p class="small muted">Giá sẽ được chốt lại từ cơ sở dữ liệu tại thời điểm xác nhận.</p><button class="btn btn-primary block">Đặt hàng ngay →</button></aside>}
+@section scripts{<script>function toggleAddressEdit(){const el=document.getElementById('shippingAddress');el.readOnly=!el.readOnly;if(!el.readOnly)el.focus();}</script>}
